@@ -79,12 +79,12 @@ export function Results({
             return (
               <motion.article
                 key={p.id}
-                initial={reducedMotion ? false : { opacity: 0, y: 24, rotateX: 10 }}
-                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 36, rotateX: 14, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
                 transition={{
-                  duration: 0.22,
+                  duration: 0.5,
                   ease: [0.22, 0.9, 0.28, 1],
-                  delay: reducedMotion ? 0 : Math.min(i, 5) * 0.045,
+                  delay: reducedMotion ? 0 : Math.min(i, 8) * 0.075,
                 }}
                 className={`result-card ${rerolling === p.id ? 'rerolling' : ''}`}
                 data-outcome={currentRecord?.outcome ?? 'unrecorded'}
@@ -107,9 +107,9 @@ export function Results({
                   <motion.span
                     className="result-art"
                     key={f.id}
-                    initial={reducedMotion ? false : { opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.24 }}
+                    initial={reducedMotion ? false : { opacity: 0, y: 22, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.45, ease: [0.22, 0.9, 0.28, 1], delay: reducedMotion ? 0 : Math.min(i, 8) * 0.075 + 0.06 }}
                   >
                     <FighterArt fighter={f} />
                   </motion.span>
