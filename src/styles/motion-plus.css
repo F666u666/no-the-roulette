@@ -1,0 +1,122 @@
+/* Motion-plus: springy tactile feedback, CTA shimmer, aurora light
+   on the draw stage, masked title reveal and staggered member rows.
+   Transform/opacity only, so everything stays on the GPU path. */
+
+/* --- Spring press on every button (spec: scale .96, spring feel) --- */
+button {
+  transition:
+    scale 0.24s cubic-bezier(0.22, 1.36, 0.36, 1),
+    translate 0.24s cubic-bezier(0.22, 1.36, 0.36, 1);
+}
+button:not(:disabled):active {
+  scale: 0.96;
+  translate: 0 1px;
+  transform: translateY(0);
+}
+
+/* --- Shimmer sweep on the main draw CTA --- */
+.lobby-start {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.lobby-start::after {
+  content: '';
+  position: absolute;
+  inset: -12% auto -12% 0;
+  width: 34%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.42) 50%,
+    transparent 100%
+  );
+  transform: translateX(-220%) skewX(-18deg);
+  animation: shimmer-sweep 3.4s cubic-bezier(0.4, 0, 0.2, 1) 0.9s infinite;
+  pointer-events: none;
+}
+.lobby-start:disabled::after { animation: none; opacity: 0; }
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-220%) skewX(-18deg); }
+  34% { transform: translateX(420%) skewX(-18deg); }
+  100% { transform: translateX(420%) skewX(-18deg); }
+}
+
+/* --- Aurora blobs breathing behind the draw stage --- */
+.draw-stage::before,
+.draw-stage::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  filter: blur(56px);
+  pointer-events: none;
+}
+.draw-stage::before {
+  width: 340px;
+  height: 340px;
+  top: -110px;
+  left: -90px;
+  background: radial-gradient(circle, rgba(38, 132, 255, 0.4), transparent 65%);
+  animation: aurora-drift-a 17s ease-in-out infinite alternate;
+}
+.draw-stage::after {
+  width: 380px;
+  height: 380px;
+  right: -110px;
+  bottom: -130px;
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.34), transparent 65%);
+  animation: aurora-drift-b 21s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift-a {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(64px, 42px) scale(1.18); }
+}
+@keyframes aurora-drift-b {
+  from { transform: translate(0, 0) scale(1.12); }
+  to { transform: translate(-58px, -48px) scale(0.96); }
+}
+
+/* --- Masked rise for the lobby hero title --- */
+.lobby-title-art span,
+.lobby-title-art strong {
+  animation: title-rise 0.85s cubic-bezier(0.22, 0.9, 0.28, 1) both;
+}
+.lobby-title-art strong { animation-delay: 0.1s; }
+@keyframes title-rise {
+  from {
+    opacity: 0;
+    transform: translateY(52%);
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0% 0);
+  }
+}
+
+/* --- Staggered member rows (0.05s rhythm) --- */
+.lobby-player-list .lobby-player {
+  animation: row-arrival 0.5s cubic-bezier(0.22, 0.9, 0.28, 1) both;
+}
+.lobby-player-list .lobby-player:nth-child(2) { animation-delay: 0.05s; }
+.lobby-player-list .lobby-player:nth-child(3) { animation-delay: 0.1s; }
+.lobby-player-list .lobby-player:nth-child(4) { animation-delay: 0.15s; }
+.lobby-player-list .lobby-player:nth-child(5) { animation-delay: 0.2s; }
+.lobby-player-list .lobby-player:nth-child(6) { animation-delay: 0.25s; }
+.lobby-player-list .lobby-player:nth-child(7) { animation-delay: 0.3s; }
+.lobby-player-list .lobby-player:nth-child(8) { animation-delay: 0.35s; }
+.lobby-player-list .lobby-player:nth-child(9) { animation-delay: 0.4s; }
+.lobby-player-list .lobby-player:nth-child(10) { animation-delay: 0.45s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lobby-start::after,
+  .draw-stage::before,
+  .draw-stage::after,
+  .lobby-title-art span,
+  .lobby-title-art strong,
+  .lobby-player-list .lobby-player { animation: none; }
+  button { transition: none; }
+  button:not(:disabled):active { scale: 1; translate: 0 0; }
+}

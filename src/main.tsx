@@ -9,6 +9,7 @@ import './styles/stage.css';
 import './styles/home.css';
 import './styles/art-direction.css';
 import './styles/draw-stage.css';
+import './styles/motion-plus.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <MotionConfig reducedMotion="user">

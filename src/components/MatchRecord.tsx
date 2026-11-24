@@ -9,6 +9,7 @@ import {
   recordPoints,
   formatPoints,
 } from '../services/drawHistory';
+import { burstAt } from '../services/burst';
 import { Dialog } from './Primitives';
 import { FighterArt } from './Art';
 export function OutcomeButtons({
@@ -28,7 +29,13 @@ export function OutcomeButtons({
           disabled={disabled}
           className={`outcome-${outcome}`}
           aria-pressed={record.outcome === outcome}
-          onClick={() => change(record.id, outcome)}
+          onClick={(e) => {
+            if (outcome === 'win' && record.outcome !== 'win') {
+              const rect = e.currentTarget.getBoundingClientRect();
+              burstAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            }
+            change(record.id, outcome);
+          }}
         >
           {outcome === 'win' ? (
             <Trophy size={16} weight="duotone" />
