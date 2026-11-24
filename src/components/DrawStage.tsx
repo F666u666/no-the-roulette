@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { FighterArt } from './Art';
 import { fighterById } from '../data/fighters';
 import { ceremonyFanfare, ceremonyLock, ceremonyTick, primeCeremony } from '../services/ceremonySound';
+import { RouletteWheel } from './RouletteWheel';
 
 export interface DrawStageEntry {
   playerId: string;
@@ -166,6 +167,9 @@ export function DrawStage({
         </strong>
         <span className="draw-stage-hint">{finished ? '' : 'タップでスキップ'}</span>
       </header>
+      <div className={finished ? 'draw-stage-wheel stopped' : 'draw-stage-wheel'} data-count={count}>
+        <RouletteWheel spinMs={SHUFFLE_MS + stagger * Math.max(0, count - 1) + 140} halted={finished} />
+      </div>
       <div className="draw-stage-grid" data-count={count} data-density={count > 4 ? 'compact' : 'regular'}>
         {entries.map((entry, i) => {
           const locked = i < lockedCount;
