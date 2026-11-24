@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X } from '@phosphor-icons/react';
 import { useReducedMotion } from 'motion/react';
 import { DRAW_REVEAL_MS, DrawSequence } from './components/DrawSequence';
+import { DrawStage, type DrawStageEntry } from './components/DrawStage';
 import type {
   AppData,
   Results as ResultMap,
@@ -118,6 +119,7 @@ function Game({
   const [busy, setBusy] = useState(false);
   const reducedMotion = useReducedMotion();
   const [sequence, setSequence] = useState<{ candidates: string[]; winner: string } | null>(null);
+  const [stage, setStage] = useState<{ entries: DrawStageEntry[] } | null>(null);
   const locked = useRef(false);
   const [rerolling, setRerolling] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -189,7 +191,6 @@ function Game({
     const records = createDrawRecords(selected, next, data.excludePrevious, kind, Date.now());
     setResultRecordIds(Object.fromEntries(records.map((r) => [r.playerId, r.id])));
     playSound('start', data.sound);
-    beginSequence(selected[0].candidates, next[selected[0].id]);
     setResults(next);
     setRound((r) => r + 1);
     update((d) => ({
@@ -197,6 +198,27 @@ function Game({
       players: d.players.map((p) => (next[p.id] ? { ...p, lastFighter: next[p.id] } : p)),
       drawHistory: [...d.drawHistory, ...records],
     }));
+    if (reducedMotion) {
+      setScreen({ kind: 'results' });
+      return;
+    }
+    // The result is already decided by the fair lottery above; the stage
+    // only stages the reveal, then hands over to the results screen.
+    locked.current = true;
+    setBusy(true);
+    setStage({
+      entries: selected.map((p) => ({
+        playerId: p.id,
+        playerName: p.name,
+        candidates: p.candidates,
+        winner: next[p.id],
+      })),
+    });
+  };
+  const finishStage = () => {
+    setStage(null);
+    locked.current = false;
+    setBusy(false);
     setScreen({ kind: 'results' });
   };
   const reroll = (id: string) => {
@@ -496,6 +518,7 @@ function Game({
         </Dialog>
       )}
       {sequence && <DrawSequence {...sequence} />}
+      {stage && <DrawStage entries={stage.entries} soundOn={data.sound} onDone={finishStage} />}
       {done && <DoneFlash />}
       {notice && (
         <div className="share-success" role="status">

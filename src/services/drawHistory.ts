@@ -51,7 +51,13 @@ export function applyMatchToPlayers(
   );
 }
 export function formatPoints(points: number): string {
-  return `${points > 0 ? '+' : points < 0 ? '−' : ''}${Math.abs(points)}pt`;
+  // Display-only rounding: one decimal place, trailing .0 trimmed.
+  // Calculations keep full precision; this only formats the label.
+  const rounded = Math.round(points * 10) / 10;
+  const sign = rounded > 0 ? '+' : rounded < 0 ? '−' : '';
+  const abs = Math.abs(rounded);
+  const text = Number.isInteger(abs) ? String(abs) : abs.toFixed(1);
+  return `${sign}${text}pt`;
 }
 /** Lifetime score is derived from all saved matches, never the current game day. */
 export function playerPoints(records: readonly DrawRecord[], playerId: string): number {

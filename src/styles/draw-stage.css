@@ -1,0 +1,178 @@
+/* Draw stage: the multi-player lottery ceremony.
+   Dark poster stage over the key-art wallpaper; every slot shuffles,
+   then fighters lock in one by one with a gold flash, and a fanfare
+   confetti burst closes the draw before the results screen. */
+
+.draw-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  padding: calc(18px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
+  color: #eef4fa;
+  background:
+    linear-gradient(#0b1e30d9, #122738e6),
+    url('/assets/wallpapers/smash-ultimate.jpeg') center 30% / cover no-repeat,
+    #182a3a;
+  cursor: pointer;
+}
+.draw-stage-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.draw-stage-head {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.draw-stage-kicker {
+  font: 700 12px var(--display);
+  letter-spacing: 0.34em;
+  color: #ff9e57;
+}
+.draw-stage-title {
+  font: 600 clamp(44px, 11vw, 72px) / 1 var(--display);
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 6px 30px #00000066;
+}
+.draw-stage-title.done {
+  color: #f5b942;
+  animation: stage-title-pop 420ms cubic-bezier(0.22, 1.36, 0.36, 1) both;
+}
+@keyframes stage-title-pop {
+  0% { transform: scale(0.82); }
+  60% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+.draw-stage-hint {
+  min-height: 16px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #b9cbdd;
+}
+
+.draw-stage-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 12px;
+  width: min(960px, 100%);
+  margin-block: auto;
+}
+.draw-stage-grid[data-count='1'] { grid-template-columns: minmax(0, 330px); justify-content: center; }
+.draw-stage-grid[data-count='2'],
+.draw-stage-grid[data-count='3'],
+.draw-stage-grid[data-count='4'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.draw-stage-grid[data-count='5'],
+.draw-stage-grid[data-count='6'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.draw-stage-grid[data-count='7'],
+.draw-stage-grid[data-count='8'],
+.draw-stage-grid[data-count='9'],
+.draw-stage-grid[data-count='10'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (min-width: 760px) {
+  .draw-stage-grid[data-count='5'],
+  .draw-stage-grid[data-count='6'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .draw-stage-grid[data-count='7'],
+  .draw-stage-grid[data-count='8'] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .draw-stage-grid[data-count='9'],
+  .draw-stage-grid[data-count='10'] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+.draw-slot {
+  border: 1px solid #ffffff29;
+  border-radius: 18px;
+  padding: 10px 10px 9px;
+  background: #ffffff14;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.draw-slot-seat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.draw-slot-seat span {
+  font: 700 12px var(--display);
+  letter-spacing: 0.08em;
+  color: #9fd0ff;
+}
+.draw-slot-seat strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.draw-slot-seat em {
+  margin-left: auto;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  background: #f5b942;
+  color: #23180a;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  animation: stage-title-pop 380ms cubic-bezier(0.22, 1.36, 0.36, 1) both;
+}
+.draw-slot-view {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #33506e 0%, #1d3449 62%, #16283a 100%);
+}
+.draw-slot-view > div { height: 100%; aspect-ratio: 1; }
+.draw-slot-view img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.draw-slot-swap { animation: draw-slide 130ms cubic-bezier(0.22, 0.9, 0.28, 1) both; }
+.draw-slot-stop { animation: slot-slam 400ms cubic-bezier(0.22, 1.3, 0.36, 1) both; }
+@keyframes slot-slam {
+  0% { opacity: 0.4; transform: scale(1.14); filter: brightness(1.7); }
+  55% { opacity: 1; transform: scale(0.985); filter: brightness(1.12); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+}
+.draw-slot.locked {
+  border-color: #f5b942;
+  box-shadow:
+    0 0 0 2px #f5b942,
+    0 0 34px #f5b94255,
+    0 18px 38px -14px #000000a6;
+  animation: slot-lock-ring 480ms cubic-bezier(0.22, 0.9, 0.28, 1) both;
+}
+@keyframes slot-lock-ring {
+  0% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+.draw-slot-name {
+  margin-top: 8px;
+  min-height: 22px;
+  text-align: center;
+  font-size: 16.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+.draw-stage-grid[data-density='compact'] .draw-slot-name { font-size: 13.5px; min-height: 19px; }
+.draw-stage-grid[data-density='compact'] .draw-slot-seat { font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-slot-swap,
+  .draw-slot-stop,
+  .draw-slot.locked,
+  .draw-slot-seat em,
+  .draw-stage-title.done { animation: none; }
+}
