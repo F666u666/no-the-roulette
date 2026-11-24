@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { assets } from '../data/assets';
+import { assetUrl } from '../data/assetUrl';
 import type { Fighter, Player } from '../models/types';
 export function FighterArt({
   fighter,
@@ -8,7 +9,7 @@ export function FighterArt({
   fighter: Fighter;
   portrait?: boolean;
 }) {
-  const src = portrait ? fighter.portraitPath : fighter.imagePath;
+  const src = assetUrl(portrait ? fighter.portraitPath : fighter.imagePath);
   const [failed, setFailed] = useState<string | null>(null);
   if (failed === src) {
     return (
@@ -33,12 +34,12 @@ export function PlayerArt({ player }: { player: Player }) {
   return (
     <img
       className="player-art"
-      src={assets.player(player.id, player.icon)}
+      src={assetUrl(assets.player(player.id, player.icon))}
       alt=""
       draggable={false}
       onError={(e) => {
-        const fallback = `/assets/mascots/${player.icon}.svg`;
-        if (!e.currentTarget.src.endsWith(fallback)) e.currentTarget.src = fallback;
+        const fallback = assetUrl(`/assets/mascots/${player.icon}.svg`);
+        if (e.currentTarget.getAttribute('src') !== fallback) e.currentTarget.src = fallback;
       }}
     />
   );

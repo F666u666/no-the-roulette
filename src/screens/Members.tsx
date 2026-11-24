@@ -53,10 +53,12 @@ export function Members({
       <main className="lobby" id="main-content">
         <div className="lobby-stage" aria-hidden="true">
           <div className="lobby-title-art">
-            <span>脳THE</span>
-            <strong>ルーレット</strong>
+            <span>ファイター抽選</span>
+            <strong>ROULETTE</strong>
           </div>
-          <FighterArt fighter={fighterById['61']} />
+          <FighterArt
+            fighter={fighterById[data.players.find((player) => data.selected.includes(player.id))?.lastFighter ?? '61'] ?? fighterById['61']}
+          />
         </div>
         <section className="lobby-console" id="players" aria-labelledby="member-title">
           <div className="lobby-console-heading">
@@ -64,7 +66,6 @@ export function Members({
               <h1 id="member-title">
                 参加者を選ぶ <small>{data.players.length}人</small>
               </h1>
-              <p>ひとりでも みんなでも</p>
             </div>
             <button
               onClick={settings}

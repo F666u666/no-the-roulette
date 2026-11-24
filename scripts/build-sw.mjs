@@ -16,13 +16,16 @@ hash.update(await readFile(new URL(import.meta.url)));
 for (const file of files) hash.update(await readFile(file));
 const version = hash.digest('hex').slice(0, 16);
 const urls = files.map((f) => '/' + path.relative('dist', f).split(path.sep).join('/'));
+const coreUrls = urls.filter((url) => !url.startsWith('/effects/'));
+const effectUrls = urls.filter((url) => url.startsWith('/effects/'));
 await writeFile(
   'dist/sw.js',
   `/* Generated from every build asset, including replacement images and sounds. */
 const CACHE_PREFIX='no-roulette-safari-v2-';
 const LEGACY_CACHE_PREFIX='no-roulette-';
 const CACHE=CACHE_PREFIX+'${version}';
-const PRECACHE=${JSON.stringify(urls)};
+const PRECACHE=${JSON.stringify(coreUrls)};
+const EFFECTS=new Set(${JSON.stringify(effectUrls)});
 function withoutRedirect(response){
   if(!response.redirected)return response;
   return new Response(response.body,{status:response.status,statusText:response.statusText,headers:response.headers});
@@ -56,9 +59,26 @@ self.addEventListener('activate',event=>event.waitUntil((async()=>{
 })()));
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting();});
 self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
+  const url=new URL(event.request.url);
+  if(event.request.method!=='GET'||url.origin!==self.location.origin)return;
+  const effectPath=url.pathname==='/effects/'?'/effects/index.html':url.pathname;
   event.respondWith((async()=>{
     const cache=await caches.open(CACHE);
+    if(EFFECTS.has(effectPath)){
+      const key=new Request(effectPath);
+      const cached=await cache.match(key);
+      if(cached)return safeResponse(Promise.resolve(cached));
+      try{
+        const response=await safeResponse(fetch(event.request));
+        if(response.ok){
+          try{await cache.put(key,response.clone());}catch{/* Continue if storage is full. */}
+        }
+        return response;
+      }catch(error){
+        if(event.request.mode!=='navigate')throw error;
+        return new Response('<!doctype html><meta charset="utf-8"><html lang="ja"><title>オフライン</title><p>演出プレビューはオンラインで一度開いてください。</p><a href="/">ルーレットに戻る</a></html>',{status:503,headers:{'content-type':'text/html; charset=utf-8'}});
+      }
+    }
     if(event.request.mode==='navigate'){
       const shell=await cache.match('/index.html');
       if(shell)return safeResponse(Promise.resolve(shell));
@@ -77,4 +97,4 @@ self.addEventListener('fetch',event=>{
 });
 `,
 );
-console.log('Offline cache:', urls.length, 'files; version', version);
+console.log('Offline cache:', coreUrls.length, 'files;', effectUrls.length, 'optional; version', version);

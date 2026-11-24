@@ -1,3 +1,4 @@
+import { isStandalone } from '../data/assetUrl';
 import { useState } from 'react';
 import { Copy, ShareNetwork } from '@phosphor-icons/react';
 import type { Player } from '../models/types';
@@ -8,7 +9,7 @@ import { Dialog } from './Primitives';
 import { FighterArt } from './Art';
 
 export function SharePlayerDialog({ player, close }: { player: Player; close: () => void }) {
-  const [link] = useState(() => createPlayerLink(player, location.href));
+  const [link] = useState(() => createPlayerLink(player, isStandalone() ? 'https://noujiru3.vercel.app/' : location.href));
   const [message, setMessage] = useState('');
   const share = async () => {
     try {

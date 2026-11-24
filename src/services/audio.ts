@@ -1,4 +1,5 @@
 import { assets } from '../data/assets';
+import { assetUrl } from '../data/assetUrl';
 type Sound = keyof typeof assets.sounds;
 let context: AudioContext | undefined;
 const buffers = new Map<Sound, AudioBuffer>();
@@ -13,7 +14,7 @@ function getContext() {
 function bufferFor(key: Sound, ctx: AudioContext) {
   let p = pending.get(key);
   if (!p) {
-    p = fetch(assets.sounds[key])
+    p = fetch(assetUrl(assets.sounds[key]))
       .then((r) => {
         if (!r.ok) throw new Error('audio');
         return r.arrayBuffer();

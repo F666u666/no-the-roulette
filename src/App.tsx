@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X } from '@phosphor-icons/react';
+import { useReducedMotion } from 'motion/react';
+import { DRAW_REVEAL_MS, DrawSequence } from './components/DrawSequence';
 import type {
   AppData,
   Results as ResultMap,
@@ -114,6 +116,8 @@ function Game({
     update((d) => ({ ...d, drawHistory: setRecordBonus(d.drawHistory, id, bonus) }));
   const [round, setRound] = useState(0);
   const [busy, setBusy] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const [sequence, setSequence] = useState<{ candidates: string[]; winner: string } | null>(null);
   const locked = useRef(false);
   const [rerolling, setRerolling] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -148,6 +152,14 @@ function Game({
   const selected = data.players.filter((p) => data.selected.includes(p.id));
   const player = 'id' in screen ? data.players.find((p) => p.id === screen.id) : undefined;
   const sound = () => update((d) => ({ ...d, sound: !d.sound }));
+  const beginSequence = (candidates: string[], winner: string) => {
+    if (reducedMotion) {
+      lock(0);
+      return;
+    }
+    setSequence({ candidates, winner });
+    lock(DRAW_REVEAL_MS);
+  };
   const lock = (ms: number) => {
     locked.current = true;
     setBusy(true);
@@ -155,6 +167,7 @@ function Game({
       locked.current = false;
       setBusy(false);
       setRerolling(null);
+      setSequence(null);
     }, ms);
   };
   const start = (kind: 'draw' | 'reroll' = 'draw') => {
@@ -176,7 +189,7 @@ function Game({
     const records = createDrawRecords(selected, next, data.excludePrevious, kind, Date.now());
     setResultRecordIds(Object.fromEntries(records.map((r) => [r.playerId, r.id])));
     playSound('start', data.sound);
-    lock(380);
+    beginSequence(selected[0].candidates, next[selected[0].id]);
     setResults(next);
     setRound((r) => r + 1);
     update((d) => ({
@@ -205,7 +218,7 @@ function Game({
     );
     setResultRecordIds((ids) => ({ ...ids, [id]: records[0].id }));
     playSound('reroll', data.sound);
-    lock(280);
+    beginSequence(p.candidates, next);
     setRerolling(id);
     setResults((r) => ({ ...r, [id]: next }));
     update((d) => ({
@@ -482,9 +495,7 @@ function Game({
           </div>
         </Dialog>
       )}
-      {busy && screen.kind === 'results' && !rerolling && (
-        <div className="draw-flash" key={round} />
-      )}
+      {sequence && <DrawSequence {...sequence} />}
       {done && <DoneFlash />}
       {notice && (
         <div className="share-success" role="status">

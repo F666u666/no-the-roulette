@@ -1,0 +1,21 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; background: #f4f6f8; color: #20262d; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.preview { width: min(100%, 650px); margin: auto; padding: max(16px, env(safe-area-inset-top)) 20px 32px; }
+header a { display: inline-flex; align-items: center; min-height: 44px; color: #294f68; font-size: 14px; }
+h1 { font-size: clamp(23px, 6vw, 33px); font-weight: 650; margin: 12px 0 16px; }
+.stage { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; max-height: 360px; border: 1px solid #bfccd8; background: #e3ecf4; overflow: hidden; border-radius: 12px; }
+.stage-content, .surface { position: absolute; inset: 0; display: grid; place-items: center; }
+.surface canvas { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+.status { position: relative; margin: 16px; padding: 7px 10px; color: #223b50; background: #f2f6f9; border-radius: 5px; text-align: center; }
+.status:empty { display: none; }
+.choices, .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+button { border: 1px solid #b6c6d4; border-radius: 6px; min-height: 44px; padding: 0 12px; background: #fff; color: #233b50; font: inherit; font-size: 14px; cursor: pointer; }
+button[aria-pressed=true], .replay { color: white; background: #284e69; border-color: #284e69; }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, a:focus-visible { outline: 2px solid #142e42; outline-offset: 3px; }
+.audio-error { font-size: 13px; }
+
+button:not(:disabled) { transition: scale 120ms cubic-bezier(.22, .9, .28, 1); }
+button:not(:disabled):active { scale: .97; }
+@media (prefers-reduced-motion: reduce) { button:not(:disabled):active { scale: 1; } }

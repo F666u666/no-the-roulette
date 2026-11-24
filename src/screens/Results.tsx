@@ -1,3 +1,4 @@
+import { AnimatedNumber } from '../components/AnimatedNumber';
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowsClockwise, ArrowRight } from '@phosphor-icons/react';
@@ -50,7 +51,7 @@ export function Results({
         <h1 className="nav-title">抽選結果</h1>
         <span className="round" aria-label={`Round ${round}`}>
           <span>ROUND</span>
-          <b>{String(round).padStart(2, '0')}</b>
+          <b><AnimatedNumber value={round} format={(value) => String(Math.round(value)).padStart(2, '0')} /></b>
         </span>
         {players.length === 1 && (
           <button className="results-history" onClick={() => openHistory(players[0].id)}>
@@ -81,9 +82,8 @@ export function Results({
                 initial={reducedMotion ? false : { opacity: 0, y: 24, rotateX: 10 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{
-                  type: 'spring',
-                  stiffness: 200,
-                  damping: 24,
+                  duration: 0.22,
+                  ease: [0.22, 0.9, 0.28, 1],
                   delay: reducedMotion ? 0 : Math.min(i, 5) * 0.045,
                 }}
                 className={`result-card ${rerolling === p.id ? 'rerolling' : ''}`}
@@ -119,13 +119,13 @@ export function Results({
                     <span className="result-daily">
                       <b>
                         {players.length > 4 ? '' : '今日 '}
-                        <em>{totals.draws}</em>回
+                        <em><AnimatedNumber value={totals.draws} /></em>回
                       </b>
                       <span>
-                        <em>{totals.wins}</em>勝 <em>{totals.losses}</em>敗
+                        <em><AnimatedNumber value={totals.wins} /></em>勝 <em><AnimatedNumber value={totals.losses} /></em>敗
                       </span>
                       <b className="result-lifetime">
-                        累計 {formatPoints(playerPoints(records, p.id))}
+                        累計 <AnimatedNumber value={playerPoints(records, p.id)} format={formatPoints} />
                       </b>
                     </span>
                   </span>

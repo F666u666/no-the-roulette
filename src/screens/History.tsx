@@ -1,3 +1,5 @@
+import { PointsTrend } from '../components/PointsTrend';
+import { AnimatedNumber } from '../components/AnimatedNumber';
 import { useState } from 'react';
 import { CaretRight } from '@phosphor-icons/react';
 import type { DrawRecord, Player } from '../models/types';
@@ -30,6 +32,10 @@ export function History({
   const selectedDay = chosenDay || day;
   const entries = recordsForDay(records, player.id, selectedDay);
   const total = tally(entries);
+  const progression = [0];
+  for (const entry of entries) {
+    if (entry.outcome !== null) progression.push(progression.at(-1)! + recordPoints(entry));
+  }
   const ids = new Set([...player.candidates, ...entries.map((r) => r.fighterId)]);
   const byFighter = fighters
     .filter((f) => ids.has(f.id))
@@ -47,7 +53,7 @@ export function History({
           <span>
             本人の累計ポイント<small>全対戦日を集計 / 18時にリセットされません</small>
           </span>
-          <strong>{formatPoints(playerPoints(records, player.id))}</strong>
+          <strong><AnimatedNumber value={playerPoints(records, player.id)} format={formatPoints} /></strong>
         </div>
         <div className="history-date">
           <label htmlFor="history-day">
@@ -64,14 +70,23 @@ export function History({
         </div>
         <div className="history-summary">
           <strong>
-            {total.draws}
+            <AnimatedNumber value={total.draws} />
             <small>回抽選</small>
           </strong>
           <span>
-            {total.wins}勝 {total.losses}敗<small>勝敗登録 {total.recorded}試合</small>
+            <AnimatedNumber value={total.wins} />勝 <AnimatedNumber value={total.losses} />敗<small>勝敗登録 {total.recorded}試合</small>
             <small className="history-points">この対戦日 {formatPoints(total.points)}</small>
           </span>
         </div>
+        <div className="history-outcome-bar" key={selectedDay} aria-hidden="true">
+          {total.recorded > 0 && (
+            <div>
+              <span style={{ flexGrow: total.wins }} />
+              <span style={{ flexGrow: total.losses }} />
+            </div>
+          )}
+        </div>
+        {progression.length > 1 && <PointsTrend key={selectedDay} points={progression} />}
         <p className="history-note">
           再抽選は勝敗を記録したときだけ出現回数に含めます
           <br />

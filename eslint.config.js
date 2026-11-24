@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 import hooks from 'eslint-plugin-react-hooks';
 import refresh from 'eslint-plugin-react-refresh';
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'playwright-report', 'test-results', 'work'] },
+  { ignores: ['dist', 'node_modules', 'playwright-report', 'test-results', 'work', '.agents/skills', 'media/motion-canvas/output'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

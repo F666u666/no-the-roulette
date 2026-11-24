@@ -9,3 +9,6 @@ work/
 .env*
 
 reports/
+.agents/skills/
+media/motion-canvas/output/
+__pycache__/

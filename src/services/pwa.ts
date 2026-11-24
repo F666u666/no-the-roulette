@@ -1,5 +1,11 @@
+import { isStandalone } from '../data/assetUrl';
+
 export type PwaStatus = { offlineReady: boolean; update: ServiceWorker | null; error: boolean };
 export function registerPwa(notify: (s: PwaStatus) => void) {
+  if (isStandalone()) {
+    notify({ offlineReady: true, update: null, error: false });
+    return () => {};
+  }
   if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return () => {};
   let alive = true;
   const replacingController = Boolean(navigator.serviceWorker.controller);

@@ -1,3 +1,4 @@
+import { isStandalone } from '../data/assetUrl';
 import { FighterArt } from '../components/Art';
 import { fighterById } from '../data/fighters';
 import { Plus, CaretRight, CloudCheck, DownloadSimple } from '@phosphor-icons/react';
@@ -96,6 +97,7 @@ export function Settings({
               Safariの共有メニューから「ホーム画面に追加」を選びます。オフラインの準備完了後は、通信なしで遊べます。
             </p>
           </details>
+          {!isStandalone() && <p><a href="/effects/index.html">演出プレビュー</a></p>}
           <p className="local-note">この端末に自動保存</p>
         </section>
       </main>
